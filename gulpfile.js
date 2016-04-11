@@ -14,6 +14,28 @@ var cssnano = require('gulp-cssnano');
 var rename = require( 'gulp-rename' );
 
 
+function notify(error){
+  var message = 'In: ';
+  var title = 'Error: ';
+
+  if(error.description) {
+    title += error.description;
+  } else if (error.message) {
+    title += error.message;
+  }
+
+  if(error.filename) {
+    var file = error.filename.split('/');
+    message += file[file.length-1];
+  }
+
+  if(error.lineNumber) {
+    message += '\nOn Line: ' + error.lineNumber;
+  }
+
+  gutil.log('title:'+title);
+  gutil.log('message:'+message);
+}
 var bundler = watchify(
   browserify({
     entries: ['./src/js/main.jsx'],
@@ -36,6 +58,7 @@ var sassBundler = watchify(
 function bundle(){
   return bundler
     .bundle()
+    .on('error', notify)
     .pipe(source('main.js'))
     .pipe(gulp.dest('dist/js'))
 }
